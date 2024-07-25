@@ -1,4 +1,4 @@
-package com.beyond.board.common;
+package com.beyond.ordersystem.common.domain;
 
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
