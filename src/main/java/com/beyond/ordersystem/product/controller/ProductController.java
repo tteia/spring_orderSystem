@@ -5,12 +5,11 @@ import com.beyond.ordersystem.product.domain.Product;
 import com.beyond.ordersystem.product.dto.ProductResDto;
 import com.beyond.ordersystem.product.dto.ProductSaveReqDto;
 import com.beyond.ordersystem.product.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -30,8 +29,10 @@ public class ProductController {
     }
 
     @GetMapping("/list")
-    public List<ProductResDto> productList(){
-        return null;
+    public ResponseEntity<?> productList(Pageable pageable){
+        Page<ProductResDto> listDto = productService.productList(pageable);
+        CommonResDto commonResDto = new CommonResDto(HttpStatus.OK, "상품 조회 완료 !", listDto);
+        return new ResponseEntity<>(commonResDto, HttpStatus.OK);
     }
 
 }

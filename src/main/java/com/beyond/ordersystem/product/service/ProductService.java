@@ -1,12 +1,12 @@
 package com.beyond.ordersystem.product.service;
 
-import com.beyond.ordersystem.member.domain.Member;
 import com.beyond.ordersystem.product.domain.Product;
 import com.beyond.ordersystem.product.dto.ProductResDto;
 import com.beyond.ordersystem.product.dto.ProductSaveReqDto;
 import com.beyond.ordersystem.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,12 +46,9 @@ public class ProductService{
         return product;
     }
 
-    public List<Page> productList(){
-        List<Product> productList = productRepository.findAll();
-        List<ProductResDto> products = new ArrayList<>();
-        for (Product product : productList) {
+    public Page<ProductResDto> productList(Pageable pageable){
+        Page<Product> products = productRepository.findAll(pageable);
+        return products.map(a->a.fromEntity());
 
-        }
-        return null;
     }
 }
