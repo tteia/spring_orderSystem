@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
 
@@ -19,7 +20,6 @@ public class MemberService {
         this.memberRepository = memberRepository;
     }
 
-    @Transactional
     public Member memberCreate(MemberSaveReqDto createDto){
         Member member = createDto.toEntity();
         Member success = memberRepository.save(member);
