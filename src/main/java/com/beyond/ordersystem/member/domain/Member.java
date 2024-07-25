@@ -2,7 +2,7 @@ package com.beyond.ordersystem.member.domain;
 
 import com.beyond.ordersystem.common.domain.Address;
 import com.beyond.ordersystem.common.domain.BaseTimeEntity;
-import com.beyond.ordersystem.member.dto.MemberListResDto;
+import com.beyond.ordersystem.member.dto.MemberResDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,9 +37,12 @@ public class Member extends BaseTimeEntity {
     @ColumnDefault("'USER'")
     private Role role;
 
-    public MemberListResDto fromEntity() {
-        MemberListResDto members = MemberListResDto.builder().build();
-
-        return members;
+    public MemberResDto fromEntity(){
+        return MemberResDto.builder()
+                .id(this.id)
+                .name(this.name)
+                .email(this.email)
+                .address(this.address)
+                .build();
     }
 }
