@@ -21,7 +21,7 @@ public class MemberSaveReqDto {
     @NotEmpty(message = "비밀번호를 작성해주세요. (필수)")
 //    @Size(min = 8, message = "비밀번호는 8자 이상 작성해주세요.")
     // Size, NotEmpty => Valid 를 빌드에서 추가함으로써 쓰게 됨. Handler 에서 Valid 를 작성했기 때문 !
-    private String password; // 암호화 적용 필요
+    private String password;
     private Address address;
 
     public Member toEntity(String password){

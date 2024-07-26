@@ -17,7 +17,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired // 생성자 1개일 때는 생략 가능.
+    @Autowired
     public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
@@ -27,10 +27,9 @@ public class MemberService {
         if(memberRepository.findByEmail(createDto.getEmail()).isPresent()){
             throw new IllegalArgumentException("이미 존재하는 Email 입니다.");
         }
-        if (createDto.getPassword().length() < 8) {
+        if (createDto.getPassword().length() < 8){
             throw new IllegalArgumentException("비밀번호의 길이가 짧습니다.");
         }
-//        Member member = createDto.toEntity();
         Member member = createDto.toEntity(passwordEncoder.encode(createDto.getPassword()));
         Member success = memberRepository.save(member);
         return success;
@@ -39,7 +38,5 @@ public class MemberService {
     public Page<MemberResDto> memberList(Pageable pageable){
         Page<Member> members = memberRepository.findAll(pageable);
         return members.map(a->a.fromEntity());
-        // Page<MemberResDto> listDto = members.map(a->a.fromEntity());
-        // return listDto; 위 코드와 동일.
     }
 }
