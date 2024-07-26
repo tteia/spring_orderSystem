@@ -23,11 +23,11 @@ public class MemberSaveReqDto {
     private String password; // 암호화 적용 필요
     private Address address;
 
-    public Member toEntity(){
+    public Member toEntity(String password){
         Member member = Member.builder()
                 .name(this.name)
                 .email(this.email)
-                .password(this.password)
+                .password(password)
                 .address(this.address)
                 .build();
         return member;

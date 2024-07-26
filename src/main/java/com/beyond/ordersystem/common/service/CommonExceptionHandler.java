@@ -33,4 +33,11 @@ public class CommonExceptionHandler {
         ResponseEntity<CommonErrorDto> result = new ResponseEntity<>(commonErrorDto, HttpStatus.BAD_REQUEST);
         return result;
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<CommonErrorDto> ExceptionHandler(Exception e){
+        CommonErrorDto commonErrorDto = new CommonErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "서버 에러 발생");
+        ResponseEntity<CommonErrorDto> result = new ResponseEntity<>(commonErrorDto, HttpStatus.INTERNAL_SERVER_ERROR);
+        return result;
+    }
 }

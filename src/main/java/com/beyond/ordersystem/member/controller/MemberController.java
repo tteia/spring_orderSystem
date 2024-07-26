@@ -7,6 +7,7 @@ import com.beyond.ordersystem.member.dto.MemberResDto;
 import com.beyond.ordersystem.member.dto.MemberSaveReqDto;
 import com.beyond.ordersystem.member.repository.MemberRepository;
 import com.beyond.ordersystem.member.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,9 +22,12 @@ import java.util.List;
 @RestController
 public class MemberController {
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
-    public MemberController(MemberService memberService) {
+    @Autowired
+    public MemberController(MemberService memberService, MemberRepository memberRepository) {
         this.memberService = memberService;
+        this.memberRepository = memberRepository;
     }
 
     @PostMapping("/create")
