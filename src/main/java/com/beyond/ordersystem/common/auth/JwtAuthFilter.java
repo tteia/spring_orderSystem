@@ -3,6 +3,7 @@ package com.beyond.ordersystem.common.auth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,9 @@ import java.util.List;
 @Slf4j
 @Component
 public class JwtAuthFilter extends GenericFilter {
+    @Value("${jwt.secretKey}")
+    private String secretKey;
+
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String bearerToken = ((HttpServletRequest) request).getHeader("Authorization");
@@ -38,7 +42,7 @@ public class JwtAuthFilter extends GenericFilter {
                 String token = bearerToken.substring(7);
                 // token 검증 및 claims(사용자 정보) 추출
                 // token 생성시에 사용한 secret 키 값을 넣어 토큰 검증에 사용
-                Claims claims = Jwts.parser().setSigningKey("abc").parseClaimsJws(token).getBody(); //getBody 는 payload 에 들어있는 것.
+                Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody(); //getBody 는 payload 에 들어있는 것.
 
                 //Authentication 객체 생성 - 네모 안에 네모 안에 있던 거. . . -> 스프링 전역에서 사용 가능함.
                 // => UserDetails 객체가 필요하다. 그래야 member_id 대신에 다른 값을 넣을 수 있도록 가져올 수 있으니까 !
