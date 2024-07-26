@@ -35,6 +35,10 @@ public class Product {
         this.imagePath = imagePath;
     }
 
+    public void updateStockQuantity(int stockQuantity){
+        this.stockQuantity -= stockQuantity;
+    }
+
     public ProductResDto fromEntity(){
         return ProductResDto.builder()
                 .id(this.id)
