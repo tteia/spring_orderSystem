@@ -3,6 +3,7 @@ package com.beyond.ordersystem.ordering.service;
 import com.beyond.ordersystem.member.domain.Member;
 import com.beyond.ordersystem.member.repository.MemberRepository;
 import com.beyond.ordersystem.ordering.domain.OrderDetail;
+import com.beyond.ordersystem.ordering.domain.OrderStatus;
 import com.beyond.ordersystem.ordering.domain.Ordering;
 import com.beyond.ordersystem.ordering.dto.OrderListResDto;
 import com.beyond.ordersystem.ordering.dto.OrderSaveReqDto;
@@ -81,7 +82,7 @@ public class OrderingService{
             ordering.getOrderDetails().add(orderDetail);
         }
         Ordering savedOrder = orderingRepository.save(ordering);
-        return savedOrder   ;
+        return savedOrder;
     }
 
     public List<OrderListResDto> orderList() {
@@ -91,5 +92,22 @@ public class OrderingService{
             orderListResDtos.add(ordering.fromEntity());
         }
         return orderListResDtos;
+    }
+    public List<OrderListResDto> myOrders() {
+        Member member = memberRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()->new EntityNotFoundException("회원을 찾을 수 없습니다."));
+        // ordering 의 member 와 이메일이 일치하는 경우를 꺼내오기.
+        List<Ordering> orderings = orderingRepository.findByMember(member);
+        List<OrderListResDto> orderListResDtos = new ArrayList<>();
+        for (Ordering ordering : orderings) {
+            orderListResDtos.add(ordering.fromEntity());
+        }
+        return orderListResDtos;
+    }
+
+    public Ordering orderCancel(Long id) {
+        Member member = memberRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()->new EntityNotFoundException("회원을 찾을 수 없습니다."));
+        Ordering ordering = orderingRepository.findById(id).orElseThrow(()->new EntityNotFoundException("주문을 찾을 수 없습니다."));
+        ordering.updateStatus(OrderStatus.CANCELED);
+        return ordering;
     }
 }

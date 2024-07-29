@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +21,7 @@ public class ProductController {
         this.productService = productService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")                 // @RequestBody 쓰면 안 됨. @ModelAttribute (생략 가능) 쓰거나 아래처럼 json 두 번 받기.
 //    public ResponseEntity<?> productCreate(@RequestPart ProductSaveReqDto createDto, @RequestPart MultipartFile productImage){
     public ResponseEntity<?> productCreate(ProductSaveReqDto createDto){
