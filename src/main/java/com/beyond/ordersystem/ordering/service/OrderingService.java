@@ -11,6 +11,7 @@ import com.beyond.ordersystem.ordering.repository.OrderingRepository;
 import com.beyond.ordersystem.product.domain.Product;
 import com.beyond.ordersystem.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +35,7 @@ public class OrderingService{
         this.orderDetailRepository = orderDetailRepository;
     }
 
-    public Ordering orderCreate(OrderSaveReqDto dto) {
+    public Ordering orderCreate(List<OrderSaveReqDto> dtos) {
 
         // 방법 1. 조금 더 쉬운 방식
         // Ordering 생성 : member_id, status
@@ -56,12 +57,14 @@ public class OrderingService{
 
 
 //        // 방법 2. JPA 최적화 방식
-        Member member = memberRepository.findById(dto.getMemberId()).orElseThrow(() -> new EntityNotFoundException("회 원 없 음 ."));
+//        Member member = memberRepository.findById(dto.getMemberId()).orElseThrow(() -> new EntityNotFoundException("회 원 없 음 ."));
+        String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // 이 한 줄은 외워주기.
+        Member member = memberRepository.findByEmail(memberEmail).orElseThrow(()-> new EntityNotFoundException("회 원 없 음 ."));
         Ordering ordering = Ordering.builder()
                 .member(member)
 //                .orderDetails() > 아직 없어서 세팅할 수가 없음! 주문을 해야 디테일이 생기니까 . .
                 .build();
-        for (OrderSaveReqDto.OrderDto orderDto : dto.getOrderDtos()) {
+        for (OrderSaveReqDto orderDto : dtos) {
             Product product = productRepository.findById(orderDto.getProductId()).orElseThrow(() -> new EntityNotFoundException("회 원 없 음 ."));
             int quantity = orderDto.getProductCount();
             if(product.getStockQuantity() < quantity){
