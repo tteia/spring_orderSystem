@@ -28,7 +28,7 @@ import java.util.*;
 @RequestMapping("/member")
 @RestController
 public class MemberController {
-    @Value("${jwt.secretKey}")
+    @Value("${jwt.secretKeyRt}")
     private String secretKeyRt;
 
     private final MemberService memberService;
@@ -80,7 +80,7 @@ public class MemberController {
         Map<String, Object> loginInfo = new HashMap<>();
         loginInfo.put("id", member.getId());
         loginInfo.put("token", jwtToken);
-        loginInfo.put("refreshToken", jwtToken);
+        loginInfo.put("refreshToken", refreshToken);
         CommonResDto commonResDto = new CommonResDto(HttpStatus.OK, "로그인 성공 !", loginInfo);
         return new ResponseEntity<>(commonResDto, HttpStatus.OK);
     }

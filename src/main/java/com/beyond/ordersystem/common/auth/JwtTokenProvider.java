@@ -16,10 +16,10 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private int expiration;
 
-    @Value("${jwt.secretKey}")
+    @Value("${jwt.secretKeyRt}")
     private String secretKeyRt;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expirationRt}")
     private int expirationRt;
 
     public String createToken(String email, String role){
