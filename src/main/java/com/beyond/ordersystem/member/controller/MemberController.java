@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -41,6 +43,8 @@ public class MemberController {
         return result;
     }
 
+    // 추후 admin 만 전체 목록 조회 가능하게끔 수정 예정.
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<?> memberList(Pageable pageable){
         Page<MemberResDto> listDto = memberService.memberList(pageable);
@@ -48,6 +52,14 @@ public class MemberController {
         CommonResDto commonResDto = new CommonResDto(HttpStatus.OK, "회원 목록 조회 성공 !", listDto);
         ResponseEntity<CommonResDto> result = new ResponseEntity<>(commonResDto, HttpStatus.OK);
         return result;
+    }
+
+    // 로그인한 본인은 본인 회원 정보만 조회할 수 있다.
+    @GetMapping("/myinfo")
+    public ResponseEntity myInfo(){
+        MemberResDto dto = memberService.myInfo();
+        CommonResDto commonResDto = new CommonResDto(HttpStatus.OK, "회원 조회 성공 !", dto);
+        return new ResponseEntity(commonResDto, HttpStatus.OK);
     }
 
     @PostMapping("/doLogin")

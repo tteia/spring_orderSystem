@@ -2,6 +2,7 @@ package com.beyond.ordersystem.member.dto;
 
 import com.beyond.ordersystem.common.domain.Address;
 import com.beyond.ordersystem.member.domain.Member;
+import com.beyond.ordersystem.member.domain.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class MemberSaveReqDto {
     // Size, NotEmpty => Valid 를 빌드에서 추가함으로써 쓰게 됨. Handler 에서 Valid 를 작성했기 때문 !
     private String password;
     private Address address;
+    private Role role;
 
     public Member toEntity(String password){
         Member member = Member.builder()
@@ -30,6 +32,7 @@ public class MemberSaveReqDto {
                 .email(this.email)
                 .password(password)
                 .address(this.address)
+                .role(this.role)
                 .build();
         return member;
     }

@@ -8,6 +8,7 @@ import com.beyond.ordersystem.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,11 @@ public class MemberService {
     public Page<MemberResDto> memberList(Pageable pageable){
         Page<Member> members = memberRepository.findAll(pageable);
         return members.map(a->a.fromEntity());
+    }
+
+    public MemberResDto myInfo(){
+        Member member = memberRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()->new EntityNotFoundException("멤버를 찾을 수 없습니다."));
+        return member.fromEntity();
     }
 
     public Member login(MemberLoginDto dto){
