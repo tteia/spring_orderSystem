@@ -13,9 +13,11 @@ import com.beyond.ordersystem.member.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @RequestMapping("/member")
 @RestController
@@ -34,13 +37,16 @@ public class MemberController {
     private final MemberService memberService;
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    @Qualifier("2")
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @Autowired
-    public MemberController(MemberService memberService, MemberRepository memberRepository, JwtTokenProvider jwtTokenProvider) {
+    public MemberController(MemberService memberService, MemberRepository memberRepository, JwtTokenProvider jwtTokenProvider, @Qualifier("2") RedisTemplate<String, Object> redisTemplate) {
         this.memberService = memberService;
         this.memberRepository = memberRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.redisTemplate = redisTemplate;
     }
 
     @PostMapping("/create")
@@ -76,6 +82,10 @@ public class MemberController {
         // 일치할 경우 accessToken 생성
         String jwtToken = jwtTokenProvider.createToken(member.getEmail(), member.getRole().toString());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail(), member.getRole().toString());
+
+        // redis 에 email 과 rt 를 key:value 형태로 저장.
+        redisTemplate.opsForValue().set(member.getEmail(),refreshToken, 240, TimeUnit.HOURS); // 240 시간
+
         // 생성된 토큰을 CommonResDto 에 담아 사용자에게 return.
         Map<String, Object> loginInfo = new HashMap<>();
         loginInfo.put("id", member.getId());
