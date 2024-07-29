@@ -100,8 +100,7 @@ public class MemberController {
         String rt = dto.getRefreshToken();
         Claims claims = null;
         try{
-            // token 검증 및 claims(사용자 정보) 추출
-            // token 생성시에 사용한 secret 키 값을 넣어 토큰 검증에 사용
+            // 코드를 통해 rt 검증
             claims = Jwts.parser().setSigningKey(secretKeyRt).parseClaimsJws(rt).getBody(); //getBody 는 payload 에 들어있는 것.
         }
         catch (Exception e){
@@ -110,6 +109,12 @@ public class MemberController {
 
         String email = claims.getSubject();
         String role = claims.get("role").toString();
+
+        // redis 를 통한 rt 추가 검증 조회
+        Object obj = redisTemplate.opsForValue().get(email);
+        if(obj == null || !obj.toString().equals(rt)){
+            return new ResponseEntity<>(new CommonErrorDto(HttpStatus.UNAUTHORIZED.value(),"invalid refresh token"),HttpStatus.UNAUTHORIZED);
+        }
 
         String newAt = jwtTokenProvider.createToken(email, role);
 
