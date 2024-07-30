@@ -25,7 +25,7 @@ public class ProductController {
     @PostMapping("/create")                 // @RequestBody 쓰면 안 됨. @ModelAttribute (생략 가능) 쓰거나 아래처럼 json 두 번 받기.
 //    public ResponseEntity<?> productCreate(@RequestPart ProductSaveReqDto createDto, @RequestPart MultipartFile productImage){
     public ResponseEntity<?> productCreate(ProductSaveReqDto createDto){
-        Product product = productService.productCreate(createDto);
+        Product product = productService.productAwsCreate(createDto);
         CommonResDto commonResDto = new CommonResDto(HttpStatus.CREATED, "상품이 성공적으로 등록 되었습니다.", product.getId());
         return new ResponseEntity<>(commonResDto, HttpStatus.CREATED);
     }

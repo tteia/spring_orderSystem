@@ -51,4 +51,19 @@ public class ProductService{
         return products.map(a->a.fromEntity());
 
     }
+
+    public Product productAwsCreate(ProductSaveReqDto createDto){
+        MultipartFile image = createDto.getProductImage();
+        Product product = null;
+        try {
+            product = productRepository.save(createDto.toEntity());
+            byte[] bytes = image.getBytes();
+            Path path = Paths.get("/Users/tteia/Desktop/tmp/", product.getId() + "_" + image.getOriginalFilename());
+            Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            product.updateImagePath(path.toString());
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 저장 실패 !"); // 트랜잭션 처리를 위해 예외 잡아주기
+        }
+        return product;
+    }
 }
