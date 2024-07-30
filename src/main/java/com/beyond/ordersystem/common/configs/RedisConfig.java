@@ -43,7 +43,26 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         return redisTemplate;
     }
-//    redisTemplate.opsForValue().set(key, value);
-//    redisTemplate.opsForValue().get(key);
-//    redisTemplate.opsForValue().increment() 또는 decrement
+
+    @Bean
+    @Qualifier("3")
+    public RedisConnectionFactory redisStockFactory(){
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        configuration.setHostName(host);
+        configuration.setPort(port);
+        configuration.setDatabase(2); // 1번 db 사용하겠다!
+        return new LettuceConnectionFactory(configuration);
+    }
+
+    // redisTemplate 은 redis 와 상호작용할 때 redis key, value 의 형식을 정의.
+    @Bean
+    @Qualifier("3")
+    public RedisTemplate<String, Object> stockRedisTemplate(@Qualifier("3") RedisConnectionFactory redisStockFactory){
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setConnectionFactory(redisStockFactory);
+        return redisTemplate;
+    }
+
 }

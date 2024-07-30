@@ -1,5 +1,6 @@
 package com.beyond.ordersystem.product.service;
 
+import com.beyond.ordersystem.common.service.StockInventoryService;
 import com.beyond.ordersystem.product.domain.Product;
 import com.beyond.ordersystem.product.dto.ProductResDto;
 import com.beyond.ordersystem.product.dto.ProductSaveReqDto;
@@ -34,11 +35,13 @@ public class ProductService{
 
     private final ProductRepository productRepository;
     private final S3Client s3Client;
+    private final StockInventoryService stockInventoryService;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, S3Client s3Client) {
+    public ProductService(ProductRepository productRepository, S3Client s3Client, StockInventoryService stockInventoryService) {
         this.productRepository = productRepository;
         this.s3Client = s3Client;
+        this.stockInventoryService = stockInventoryService;
     }
 
     public Product productCreate(ProductSaveReqDto createDto){
@@ -51,6 +54,10 @@ public class ProductService{
             Path path = Paths.get("/Users/tteia/Desktop/tmp/", product.getId() + "_" + image.getOriginalFilename());
             Files.write(path, bytes, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
             product.updateImagePath(path.toString());
+
+            if(createDto.getName().contains("sale")){
+                stockInventoryService.increaseStock(product.getId(), createDto.getStockQuantity());
+            }
         } catch (IOException e) {
             throw new RuntimeException("이미지 저장 실패 !"); // 트랜잭션 처리를 위해 예외 잡아주기
         }
