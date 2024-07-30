@@ -15,6 +15,11 @@ public class StockInventoryService {
 
     // 상품 등록 시 increaseStock 호출
     public Long increaseStock(Long itemId, int quantity){
+        // redis 가 음수까지 내려갈 경우, 추후 재고 업데이트 시 재고와 개수가 정확하지 않을 수 있다.
+        // ex) -2 상태에서 재고 100 추가 시 재고가 98개가 됨.
+        // 따라서 음수일 경우 0으로 setting 하는 로직이 필요하다.
+
+
         // increment 후 재고량을 return 함.
         return redisTemplate.opsForValue().increment(String.valueOf(itemId), quantity);
     }

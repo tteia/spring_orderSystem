@@ -8,11 +8,11 @@ import com.beyond.ordersystem.ordering.domain.OrderStatus;
 import com.beyond.ordersystem.ordering.domain.Ordering;
 import com.beyond.ordersystem.ordering.dto.OrderListResDto;
 import com.beyond.ordersystem.ordering.dto.OrderSaveReqDto;
+import com.beyond.ordersystem.ordering.dto.StockDecreaseEvent;
 import com.beyond.ordersystem.ordering.repository.OrderDetailRepository;
 import com.beyond.ordersystem.ordering.repository.OrderingRepository;
 import com.beyond.ordersystem.product.domain.Product;
 import com.beyond.ordersystem.product.repository.ProductRepository;
-import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,15 +30,18 @@ public class OrderingService{
     private final ProductRepository productRepository;
     private final OrderDetailRepository orderDetailRepository;
     private final StockInventoryService stockInventoryService;
+    private final StockDecreaseEventHandler stockDecreaseEventHandler;
 
     @Autowired
-    public OrderingService(OrderingRepository orderingRepository, MemberRepository memberRepository, ProductRepository productRepository, OrderDetailRepository orderDetailRepository, StockInventoryService stockInventoryService) {
+    public OrderingService(OrderingRepository orderingRepository, MemberRepository memberRepository, ProductRepository productRepository, OrderDetailRepository orderDetailRepository, StockInventoryService stockInventoryService, StockDecreaseEventHandler stockDecreaseEventHandler) {
         this.orderingRepository = orderingRepository;
         this.memberRepository = memberRepository;
         this.productRepository = productRepository;
         this.orderDetailRepository = orderDetailRepository;
         this.stockInventoryService = stockInventoryService;
+        this.stockDecreaseEventHandler = stockDecreaseEventHandler;
     }
+
     // 한 번에 한 스레드만 건드릴 수 있게 하면 동시성 이슈를 잡을 수 있지 않을까 . . . ?
     // @Synchronized 를 설정한다 하더라도, 재고 감소가 DB 에 반영되는 시점은 트랜잭션이 커밋되고 종료되는 시점이라 싱크가 맞지 않는다.
     public Ordering orderCreate(List<OrderSaveReqDto> dtos) {
@@ -60,8 +63,11 @@ public class OrderingService{
                 // redis 에서 재고 관리하는데 우리가 잔량이 필요해 ? => 경우에 따라 DB 에서 빼고 redis 에서 빼고 ,,
                 int newQuantity = stockInventoryService.decreaseStock(orderDto.getProductId(), orderDto.getProductCount()).intValue();
                 if(newQuantity < 0){
-                    throw new IllegalArgumentException("재고가 부족합니다. 주문량을 확인해주세요.");
+                    throw new IllegalArgumentException("재고가 부족합니다. 재고를 확인해주세요.");
                 }
+                // rdb(relation db) 에 재고를 업데이트. rabbitmq 를 통해 비동기적으로 이벤트 처리.
+                stockDecreaseEventHandler.publish(new StockDecreaseEvent(product.getId(), orderDto.getProductCount()));
+
             }
             else{
 
